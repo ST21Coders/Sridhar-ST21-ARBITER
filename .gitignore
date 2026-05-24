@@ -1,7 +1,6 @@
 # Personal Claude Code memory — keep local, do not share
 CLAUDE.local.md
 .claude/settings.local.json
-CLAUDE.md
 
 # Python venv created by scripts/ workflow (PEP 668 workaround)
 scripts/.venv/
