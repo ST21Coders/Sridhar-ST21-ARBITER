@@ -105,6 +105,19 @@ Resources:
             Fn::ImportValue: !Sub "${Environment}-${ProjectName}-ProcessedBucketName"
           S3_KMS_KEY_ARN:
             Fn::ImportValue: !Sub "${Environment}-${ProjectName}-S3KeyArn"
+          REPORTS_PREFIX: "File_Transfer_Reports/"
+          # Used by the JWT decode in processing_pipeline._caller_groups.
+          COGNITO_ISSUER_URL:
+            Fn::ImportValue: !Sub "${Environment}-${ProjectName}-CognitoIssuerURL"
+          # Comma-separated Cognito group list allowed to trigger a manual run.
+          # EventBridge invocations bypass this gate (no http context on the event).
+          ALLOWED_GROUPS: "ciso,grc"
+      # Function URL for manual UI-driven triggers. AuthType=NONE; the Lambda
+      # decodes the Cognito IdToken from the Authorization header and verifies
+      # the caller's group membership against ALLOWED_GROUPS. Mirrors the
+      # api_handler /chat pattern.
+      FunctionUrlConfig:
+        AuthType: NONE
       Tags:
         Name: !Sub "${Environment}-${ProjectName}-processing-pipeline"
 
@@ -116,6 +129,29 @@ Resources:
       Principal: s3.amazonaws.com
       SourceArn: !Sub "arn:aws:s3:::${Environment}-${ProjectName}-raw"
       SourceAccount: !Ref AWS::AccountId
+
+  # ──────────────────────────── Schedule (twice/day) ───────────
+  # Cron is UTC. 14:00 UTC = 06:00 PST and 02:00 UTC = 18:00 PST (UTC-8 literal,
+  # not DST-aware). Switch to AWS::Scheduler::Schedule with
+  # ScheduleExpressionTimezone if Pacific-local wall-clock is wanted instead.
+  ProcessingPipelineSchedule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "${Environment}-${ProjectName}-processing-pipeline-schedule"
+      Description: "Twice-daily raw -> processed file move (06:00 / 18:00 PST literal UTC-8)"
+      ScheduleExpression: "cron(0 14,2 * * ? *)"
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt ProcessingPipelineFunction.Arn
+          Id: ProcessingPipelineTarget
+
+  ProcessingPipelineSchedulePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref ProcessingPipelineFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt ProcessingPipelineSchedule.Arn
 
   ProcessingPipelineLogGroup:
     Type: AWS::Logs::LogGroup
@@ -136,3 +172,8 @@ Outputs:
     Value: !GetAtt ProcessingPipelineFunction.Arn
     Export:
       Name: !Sub "${Environment}-${ProjectName}-ProcessingPipelineLambdaArn"
+  ProcessingPipelineFunctionUrl:
+    Description: Direct Function URL to trigger the file mover from a UI (AuthType=NONE; JWT decoded in code).
+    Value: !GetAtt ProcessingPipelineFunctionUrl.FunctionUrl
+    Export:
+      Name: !Sub "${Environment}-${ProjectName}-ProcessingPipelineFunctionUrl"

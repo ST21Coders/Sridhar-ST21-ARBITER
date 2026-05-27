@@ -718,3 +718,216 @@ aws logs tail /aws/lambda/dev-st21arbiter-poc-api-handler --region us-east-1 --s
 ```
 
 If `/chat` returns `503 "Master runtime ARN not configured"`, the Lambda env var was never populated — re-run `scripts/deploy_agents.py`, which patches `MASTER_AGENT_RUNTIME_ARN` and `MEMORY_ID` on the function.
+
+---
+
+# Triggering the File-Processing Lambda from a UI
+
+The `processing_pipeline` Lambda runs twice daily on an EventBridge schedule (06:00 / 18:00 PST). It can also be invoked **on demand from any UI** via a dedicated Function URL that mirrors the `/chat` auth pattern — `AuthType=NONE` at the URL level, with the Lambda decoding the Cognito IdToken and verifying the caller's group membership.
+
+## Design
+
+| Aspect | Detail |
+|---|---|
+| Endpoint | Lambda Function URL on the `processing_pipeline` function. CFN export `dev-st21arbiter-poc-ProcessingPipelineFunctionUrl` ([05-compute.yaml](../Infra/templates/05-compute.yaml)) |
+| URL-level auth | `AuthType=NONE` |
+| In-code auth | `Authorization: Bearer <Cognito IdToken>` — decoded by `_caller_groups` in [processing_pipeline.py](../Infra/functions/processing_pipeline/processing_pipeline.py) |
+| Authorization | Caller must belong to one of `ALLOWED_GROUPS` (CFN default `ciso,grc`). Other personas get 403. |
+| Method | `POST /` (Function URL root). Body is ignored — empty `{}` is fine. |
+| Timeout | 15 min (Function URL limit; Lambda itself is 900 s) — well above any realistic file-mover run |
+| CORS | Lambda emits `Access-Control-Allow-Origin: *` and handles `OPTIONS` preflight |
+| Schedule-driven runs | Unchanged — EventBridge events have no `requestContext.http`, so the auth gate is skipped |
+
+## How the Lambda decides whether to authenticate
+
+The handler distinguishes the two invocation paths by looking for `event.requestContext.http`:
+
+```
+EventBridge schedule → no http context → skip auth gate, run unconditionally
+Function URL HTTP    → http context present → require JWT + group match
+```
+
+This means the same code answers both surfaces and you never have to maintain two handlers.
+
+## Endpoints to collect (in this account)
+
+```bash
+aws cloudformation list-exports --region us-east-1 \
+  --query "Exports[?contains(Name, 'st21arbiter-poc') && (contains(Name, 'ProcessingPipelineFunctionUrl') || contains(Name, 'UserPoolId') || contains(Name, 'UserPoolClientId'))].[Name,Value]" \
+  --output table
+```
+
+You'll use:
+
+| Export | Use |
+|---|---|
+| `dev-st21arbiter-poc-ProcessingPipelineFunctionUrl` | `POST` target — the URL the UI hits |
+| `dev-st21arbiter-poc-UserPoolId` | Token acquisition |
+| `dev-st21arbiter-poc-UserPoolClientId` | Token acquisition |
+
+---
+
+## Variation 1 — Postman on desktop
+
+Mirrors the existing `Chat` flow. If you already have the `ARBITER` collection from earlier in this doc, you can reuse `Get IdToken` verbatim.
+
+### Step 1 — Use a `ciso` or `grc` user
+
+The `ALLOWED_GROUPS` env var on the Lambda defaults to `ciso,grc`. Sign in as one of those two seeded users:
+
+| User | Group | Will it work? |
+|---|---|---|
+| `ciso_daiana@example.com` | `ciso` | ✅ |
+| `grc_priya@example.com` | `grc` | ✅ |
+| `soc_marcus@example.com` | `soc` | ❌ 403 |
+| `emp_sarah@example.com` | `employee` | ❌ 403 |
+
+If `ciso_daiana` is still in `FORCE_CHANGE_PASSWORD`, promote them:
+
+```bash
+aws cognito-idp admin-set-user-password --region us-east-1 \
+  --user-pool-id <UserPoolId> \
+  --username ciso_daiana@example.com \
+  --password '<DEMO_PASSWORD>' --permanent
+```
+
+### Step 2 — Add the URL to the collection
+
+Open the `ARBITER` collection's **Variables** tab and add:
+
+| Variable | Initial value | Current value |
+|---|---|---|
+| `processingUrl` | *(paste from `dev-st21arbiter-poc-ProcessingPipelineFunctionUrl`, keep trailing slash)* | *(same)* |
+
+Also update `username` to `ciso_daiana@example.com` (or `grc_priya@example.com`).
+
+### Step 3 — Re-run `Get IdToken`
+
+The cached `{{idToken}}` is tied to whichever user signed in last. Re-run **Get IdToken** so the cached token belongs to the CISO/GRC user — the new token's `cognito:groups` claim is what the Lambda checks.
+
+### Step 4 — Add the `Trigger Processing` request
+
+1. Right-click the `ARBITER` collection → **Add request** → name it `Trigger Processing`.
+2. **Method**: `POST`
+3. **URL**: `{{processingUrl}}` (root path — Function URL maps `/` to the handler)
+4. **Headers** tab:
+
+   | Key | Value |
+   |---|---|
+   | `Authorization` | `Bearer {{idToken}}` |
+   | `Content-Type` | `application/json` |
+
+5. **Body** tab → **raw** → **JSON**: `{}`
+6. **Save** → **Send**.
+
+Expected response on success (200):
+
+```json
+{
+  "run_id": "abc123def456...",
+  "started": "2026-05-27T18:42:11Z",
+  "finished": "2026-05-27T18:42:14Z",
+  "moved": 3,
+  "skipped": 0,
+  "failed": 0,
+  "report_key": "File_Transfer_Reports/run-2026-05-27T18-42-11Z-abc123de.csv"
+}
+```
+
+### Step 5 — Verify the report and the moved files
+
+```bash
+# CSV report in raw/File_Transfer_Reports/
+aws s3 ls s3://dev-st21arbiter-poc-raw/File_Transfer_Reports/ --region us-east-1
+
+# Read the latest report
+aws s3 cp s3://dev-st21arbiter-poc-raw/File_Transfer_Reports/<latest>.csv - --region us-east-1
+
+# Tail the Lambda log to confirm a manual trigger landed
+aws logs tail /aws/lambda/dev-st21arbiter-poc-processing-pipeline --region us-east-1 --since 5m --follow
+# Expect: "Manual HTTP trigger: sub=<sub> groups=['ciso']" then "processing_pipeline run started/finished"
+```
+
+### Permissions needed — Variation 1
+
+- **AWS side**: none beyond what `deploy.sh` already provisions. The Function URL is created by CFN; the Lambda already has S3 read/write/delete + KMS.
+- **User side**: caller is in Cognito group `ciso` or `grc`, with a permanent password.
+
+### Variation 1 — Troubleshooting
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `401 "Missing or invalid Authorization header"` | No / malformed `Authorization` header | Re-run `Get IdToken`; verify the `{{idToken}}` variable populated; confirm header value starts with `Bearer ` |
+| `403 "Caller not in allowed groups ['ciso', 'grc']"` with `caller_groups: ['soc']` | Wrong persona signed in | Re-run `Get IdToken` as `ciso_daiana@` or `grc_priya@`; or widen `ALLOWED_GROUPS` env var on the Lambda |
+| `403 caller_groups: []` | User belongs to no Cognito groups | `aws cognito-idp admin-add-user-to-group --user-pool-id ... --username ... --group-name ciso` |
+| `200 {"status":"stub","path":"/","method":"POST"}` | You hit the **api_handler** Function URL by mistake (which routes by path); the processing-pipeline Function URL accepts root POST and there is no stub route | Confirm `{{processingUrl}}` is the export named `ProcessingPipelineFunctionUrl`, not `ChatFunctionUrl` |
+| `502 list_failed` in the response body | Lambda role missing S3 ListBucket on raw | Re-deploy `02-security` (`s3:ListBucket` was already present, so this is rare — check the actual error string for the AccessDenied resource) |
+| `200 moved=0 skipped=0 failed=0` | Raw bucket is empty (except for reports prefix) | Expected. Drop a test file: `aws s3 cp ./README.md s3://dev-st21arbiter-poc-raw/smoke/test-$(date +%s).md` and re-trigger |
+
+---
+
+## Variation 2 — Another SPA on CloudFront
+
+Same auth model as the `/chat` Variation 2 above. The new SPA already signs in through the shared Cognito User Pool — to trigger a processing run, it just POSTs to the Function URL with its existing IdToken.
+
+### Step 1 — Add the URL to the SPA's environment
+
+```
+VITE_PROCESSING_URL=https://<urlid>.lambda-url.us-east-1.on.aws/
+```
+
+### Step 2 — Gate the UI by group (defense in depth — the Lambda re-checks)
+
+In the React app, read `cognito:groups` from the IdToken (same `getGroups()` helper used by `PersonaContext`). Render the "Run File Processing" button **only** when the user is `ciso` or `grc`. The Lambda will still 403 if a forged client tries anyway.
+
+### Step 3 — Fetch hook
+
+```js
+export async function triggerProcessing(idToken) {
+  const url = import.meta.env.VITE_PROCESSING_URL;
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${idToken}`,
+      "Content-Type": "application/json",
+    },
+    body: "{}",
+  });
+  const body = await resp.json();
+  if (!resp.ok) {
+    throw new Error(`Processing failed (${resp.status}): ${body.error || JSON.stringify(body)}`);
+  }
+  return body;   // { run_id, started, finished, moved, skipped, failed, report_key }
+}
+```
+
+UX recommendation: this Lambda's run is slow-ish (S3 list + per-object head/copy/delete). Show a spinner with "Processing files…" and disable the button while pending. Surface `moved` / `skipped` / `failed` counts plus a link to the CSV report.
+
+### CORS + CSP for the new SPA
+
+- Lambda already emits `Access-Control-Allow-Origin: *` — works out of the box.
+- For prod, tighten to the specific CloudFront domain by editing `CORS_HEADERS` in [processing_pipeline.py](../Infra/functions/processing_pipeline/processing_pipeline.py).
+- The new CloudFront distribution's CSP `connect-src` must allow `https://*.lambda-url.us-east-1.on.aws` (same hostname pattern used for `/chat`).
+
+### Permissions needed — Variation 2
+
+- **AWS side**: only the CFN re-deploy of `05-compute` to create the Function URL. No new IAM on the Lambda role.
+- **User side**: user belongs to `ciso` or `grc` Cognito group.
+
+---
+
+## Sanity checks specific to the file-processing Lambda
+
+```bash
+# Function URL is configured and live
+aws lambda get-function-url-config --function-name dev-st21arbiter-poc-processing-pipeline --region us-east-1
+
+# Lambda env vars include COGNITO_ISSUER_URL + ALLOWED_GROUPS
+aws lambda get-function-configuration --function-name dev-st21arbiter-poc-processing-pipeline \
+  --region us-east-1 --query 'Environment.Variables'
+
+# EventBridge schedule still in place (so scheduled runs still happen)
+aws events describe-rule --name dev-st21arbiter-poc-processing-pipeline-schedule --region us-east-1
+```
+
+If the Function URL returns immediately with a JSON body containing CORS headers, the auth gate is wired correctly. If it returns a raw `{"errorMessage": ...}` shape, the Lambda crashed before reaching `_resp` — check CloudWatch logs.
