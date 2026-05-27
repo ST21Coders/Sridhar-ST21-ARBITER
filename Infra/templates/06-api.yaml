@@ -121,6 +121,7 @@ Resources:
   #   POST /actions/{id}/approve|reject|execute|escalate  (ActionCenter)
   #   GET  /audit                         (AuditLogs)
   #   POST /chat                          (MCPChat, AnalystView)
+  #   POST /mymcp/chat                    (MyMCP spoke requests)
   #   GET  /conversations                          (MCPChat + AnalystView sidebars)
   #   GET  /conversations/{session_id}             (session metadata)
   #   GET  /conversations/{session_id}/messages    (full message history from AgentCore Memory)
@@ -270,6 +271,12 @@ Resources:
           Properties:
             RestApiId: !Ref ArbiterApi
             Path: /chat
+            Method: POST
+        MyMcpChatPost:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ArbiterApi
+            Path: /mymcp/chat
             Method: POST
         ConversationsList:
           Type: Api
