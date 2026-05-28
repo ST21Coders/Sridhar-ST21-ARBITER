@@ -285,6 +285,19 @@ deploy_sam_stack() {
     --template-file "${template}" \
     --build-dir ".aws-sam/build-${1}"
 
+  # Pull template-applicable params from dev.json so SAM stacks honor the same
+  # overrides as the CFN change-set path. SAM wants Key=Val pairs (not the JSON
+  # format CFN accepts), so we convert via filter_params + python.
+  local filtered_params
+  filtered_params=$(mktemp)
+  filter_params "${template}" "${filtered_params}"
+  local sam_overrides
+  sam_overrides=$(python3 -c "
+import json, shlex, sys
+print(' '.join(shlex.quote(f\"{p['ParameterKey']}={p['ParameterValue']}\") for p in json.load(open(sys.argv[1]))))
+" "${filtered_params}")
+  rm -f "${filtered_params}"
+
   sam deploy \
     --template-file ".aws-sam/build-${1}/template.yaml" \
     --stack-name "${stack_name}" \
@@ -292,7 +305,7 @@ deploy_sam_stack() {
     --s3-prefix "${stack_name}" \
     --region "${REGION}" \
     --capabilities CAPABILITY_NAMED_IAM CAPABILITY_AUTO_EXPAND \
-    --parameter-overrides "Environment=${ENV}" "ProjectName=${PROJECT}" \
+    --parameter-overrides "Environment=${ENV}" "ProjectName=${PROJECT}" ${sam_overrides} \
     --tags "Environment=${ENV}" "Project=${PROJECT}" \
     --no-fail-on-empty-changeset \
     --no-confirm-changeset

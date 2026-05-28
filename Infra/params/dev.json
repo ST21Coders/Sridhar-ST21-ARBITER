@@ -69,5 +69,10 @@
     "_comment_ui": "10-ui-hosting (Plan/) toggles to keep CFN noise low in demo.",
     "ParameterKey": "AttachWaf",
     "ParameterValue": "false"
+  },
+  {
+    "_comment_chat_cors": "Origins allowed to hit the /chat Lambda Function URL (06-api). Add the CloudFront SPA URL on each redeploy of 10-ui-hosting.",
+    "ParameterKey": "ChatFunctionUrlAllowedOrigins",
+    "ParameterValue": "http://localhost:5173,https://d5u0vv1zl3eqd.cloudfront.net,http://localhost:3002"
   }
 ]

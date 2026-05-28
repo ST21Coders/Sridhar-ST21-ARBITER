@@ -31,6 +31,13 @@ Parameters:
     Type: String
     Default: "*"
     Description: CORS Access-Control-Allow-Origin. For prod, set to the CloudFront domain.
+  ChatFunctionUrlAllowedOrigins:
+    Type: CommaDelimitedList
+    Default: "http://localhost:5173"
+    Description: |
+      CORS allow-list for the /chat Lambda Function URL. Set to the Vite dev origin
+      plus the CloudFront SPA URL (e.g. "http://localhost:5173,https://dxxxx.cloudfront.net").
+      Function URL CORS is not the same as API Gateway CORS — it has its own allow-list.
 
 Globals:
   Function:
@@ -215,6 +222,15 @@ Resources:
       # demo testing — switch to AWS_IAM (SigV4) or move logic to async before prod.
       FunctionUrlConfig:
         AuthType: NONE
+        Cors:
+          AllowOrigins: !Ref ChatFunctionUrlAllowedOrigins
+          AllowMethods:
+            - POST
+            - GET
+          AllowHeaders:
+            - content-type
+            - authorization
+          MaxAge: 3600
       Events:
         ScanPost:
           Type: Api
