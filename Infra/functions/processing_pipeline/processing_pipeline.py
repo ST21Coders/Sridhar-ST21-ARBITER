@@ -41,6 +41,13 @@ ALLOWED_GROUPS = {g.strip() for g in os.environ.get("ALLOWED_GROUPS", "").split(
 
 s3 = boto3.client("s3", region_name=REGION)
 
+# Toggled per-invocation in handler(). The Function URL's CORS layer adds
+# Access-Control-Allow-Origin itself; emitting it again from the Lambda
+# response produces duplicate headers which browsers reject. EventBridge
+# scheduled invocations have no http context, so the flag stays False and
+# CORS headers are omitted (the response is never sent to a browser).
+_emit_cors_headers = False
+
 CSV_HEADER = [
     "timestamp_utc",
     "source_bucket",
@@ -53,16 +60,17 @@ CSV_HEADER = [
     "error",
 ]
 
-CORS_HEADERS = {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type,Authorization",
-    "Access-Control-Allow-Methods": "POST,OPTIONS",
-}
+def _cors_headers() -> dict:
+    headers = {"Content-Type": "application/json"}
+    if _emit_cors_headers:
+        headers["Access-Control-Allow-Origin"] = "*"
+        headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+        headers["Access-Control-Allow-Methods"] = "POST,OPTIONS"
+    return headers
 
 
 def _resp(status: int, body: dict) -> dict:
-    return {"statusCode": status, "headers": CORS_HEADERS, "body": json.dumps(body)}
+    return {"statusCode": status, "headers": _cors_headers(), "body": json.dumps(body)}
 
 
 def _caller_groups(event: dict) -> tuple[str | None, list[str]]:
@@ -94,6 +102,12 @@ def handler(event, context):
     http = event.get("requestContext", {}).get("http") or {}
     method = (http.get("method") or "").upper()
     invoked_via_http = bool(http)
+
+    # Function URL invocations: the URL layer handles CORS; suppress our
+    # own ACAO so we don't duplicate the header. EventBridge: not a browser,
+    # CORS headers are noise.
+    global _emit_cors_headers
+    _emit_cors_headers = False
 
     # Browser CORS preflight — always allow.
     if method == "OPTIONS":

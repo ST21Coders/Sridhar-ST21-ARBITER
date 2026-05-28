@@ -195,6 +195,16 @@ Resources:
           # Set by deploy_agents.py alongside MASTER_AGENT_RUNTIME_ARN. Read by
           # GET /conversations/{id}/messages to list events from AgentCore Memory.
           MEMORY_ID: ""
+          # Used by /uploads/presign (writes into RAW) and /uploads/list
+          # (reads RAW or PROCESSED). KMS key ARN is required because both
+          # buckets enforce SSE-KMS — the presigned PUT must carry the same
+          # encryption headers the role agreed to in the signature.
+          RAW_BUCKET:
+            Fn::ImportValue: !Sub "${Environment}-${ProjectName}-RawBucketName"
+          PROCESSED_BUCKET:
+            Fn::ImportValue: !Sub "${Environment}-${ProjectName}-ProcessedBucketName"
+          S3_KMS_KEY_ARN:
+            Fn::ImportValue: !Sub "${Environment}-${ProjectName}-S3KeyArn"
       VpcConfig:
         SubnetIds:
           - Fn::ImportValue: !Sub "${Environment}-${ProjectName}-PrivateSubnet1Id"

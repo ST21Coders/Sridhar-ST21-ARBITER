@@ -152,6 +152,21 @@ Resources:
                 Action:
                   - secretsmanager:GetSecretValue
                 Resource: !Sub "arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${Environment}/${ProjectName}/*"
+              # Needed for /uploads/presign and /uploads/list. PutObject must
+              # be allowed on the role so the presigned URL the role signs is
+              # actually usable; the URL itself enforces the key prefix and
+              # KMS settings, but IAM still has to permit the action.
+              - Sid: RawProcessedBucketUploads
+                Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:ListBucket
+                  - s3:GetObject
+                Resource:
+                  - !Sub "arn:aws:s3:::${Environment}-${ProjectName}-raw"
+                  - !Sub "arn:aws:s3:::${Environment}-${ProjectName}-raw/*"
+                  - !Sub "arn:aws:s3:::${Environment}-${ProjectName}-processed"
+                  - !Sub "arn:aws:s3:::${Environment}-${ProjectName}-processed/*"
       Tags:
         - Key: Name
           Value: !Sub "${Environment}-${ProjectName}-api-handler-role"

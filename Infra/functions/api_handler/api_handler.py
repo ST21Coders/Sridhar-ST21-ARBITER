@@ -9,6 +9,13 @@ Routes:
   GET  /conversations/{id}/messages           → message history (AgentCore Memory
                                                 list_events, chronological order)
   GET  /conversations/{id}                    → conversation metadata (DDB row)
+  POST /uploads/presign                       → presigned S3 PUT URL into the
+                                                raw bucket under
+                                                users/<sub>/<ts>-<filename>.
+                                                Browser PUTs directly to S3.
+  GET  /uploads/list?bucket=raw|processed     → list the caller's files in the
+                                                named bucket (scoped to
+                                                users/<sub>/ prefix).
   GET  /health                                → unauth health check
 
 Note: POST /conversations and POST /conversations/{id}/messages were removed —
@@ -21,16 +28,26 @@ Env vars:
                              (populated by scripts/deploy_agents.py).
   SESSIONS_TABLE             DynamoDB table indexing conversations.
   MEMORY_ID                  AgentCore Memory ID (for message history reads).
+  RAW_BUCKET                 S3 bucket for browser uploads (raw zone).
+  PROCESSED_BUCKET           S3 bucket for processed files (read-only list).
+  S3_KMS_KEY_ARN             Optional. CMK ARN that encrypts both buckets;
+                             when set, the presigned PUT includes the SSE-KMS
+                             headers so the browser PUT succeeds.
+  UPLOAD_URL_EXPIRES_SECONDS Optional. Presigned URL lifetime. Default 900s.
 """
 import base64
 import json
 import logging
 import os
+import re
 from typing import Any
 from decimal import Decimal
+from datetime import datetime, timezone
 
 import boto3
 from boto3.dynamodb.conditions import Key
+from botocore.config import Config as BotoConfig
+from botocore.exceptions import ClientError
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -42,6 +59,21 @@ CONFLICTS_TABLE = os.environ.get("CONFLICTS_TABLE", "")
 CHANGE_REQUESTS_TABLE = os.environ.get("CHANGE_REQUESTS_TABLE", "")
 AUDIT_TABLE = os.environ.get("AUDIT_TABLE", "")
 MEMORY_ID = os.environ.get("MEMORY_ID", "").strip()
+RAW_BUCKET = os.environ.get("RAW_BUCKET", "").strip()
+PROCESSED_BUCKET = os.environ.get("PROCESSED_BUCKET", "").strip()
+S3_KMS_KEY_ARN = os.environ.get("S3_KMS_KEY_ARN", "").strip()
+UPLOAD_URL_EXPIRES_SECONDS = int(os.environ.get("UPLOAD_URL_EXPIRES_SECONDS", "900"))
+UPLOAD_PREFIX = "users/"            # per-user folder root inside each bucket
+MAX_LIST_KEYS = 200                 # cap list responses; bucket-listing isn't paginated to the UI
+
+# Module-level flag toggled per-invocation in handler(). Safe because Lambda
+# runs at most one invocation per container at a time. The Function URL adds
+# CORS headers itself (via FunctionUrlConfig); emitting them again from the
+# Lambda response creates duplicate Access-Control-Allow-Origin headers that
+# browsers reject with "CORS Allow Origin Not Matching Origin". API Gateway
+# does NOT auto-inject CORS on success responses, so the Lambda still has to
+# emit them when invoked through the Gateway.
+_emit_cors_headers = True
 
 agentcore = boto3.client("bedrock-agentcore", region_name=REGION)
 ddb = boto3.resource("dynamodb", region_name=REGION)
@@ -49,10 +81,27 @@ sessions_table = ddb.Table(SESSIONS_TABLE) if SESSIONS_TABLE else None
 conflicts_table = ddb.Table(CONFLICTS_TABLE) if CONFLICTS_TABLE else None
 crs_table = ddb.Table(CHANGE_REQUESTS_TABLE) if CHANGE_REQUESTS_TABLE else None
 audit_table = ddb.Table(AUDIT_TABLE) if AUDIT_TABLE else None
+# SigV4 + virtual-host addressing so presigned URLs are usable from any browser
+# origin without an explicit region in the host.
+s3 = boto3.client(
+    "s3",
+    region_name=REGION,
+    config=BotoConfig(signature_version="s3v4", s3={"addressing_style": "virtual"}),
+)
+
+# Anything outside this character class is replaced with '_' in upload keys.
+# S3 accepts a wider set but browsers + presigned URLs handle this subset cleanly.
+_SAFE_FILENAME_RE = re.compile(r"[^A-Za-z0-9._-]+")
 
 
 # ──────────────────────────── router ────────────────────────────
 def handler(event, context):
+    # Function URL events carry requestContext.http; API Gateway events do not.
+    # Skip emitting CORS headers from the Lambda when invoked via Function URL
+    # — the URL layer adds them and duplicates break the browser.
+    global _emit_cors_headers
+    _emit_cors_headers = "http" not in (event.get("requestContext") or {})
+
     # Log path + header names so we can debug auth issues without dumping
     # the full event (which can include JWTs in headers).
     _path = event.get("path") or event.get("rawPath", "")
@@ -82,6 +131,12 @@ def handler(event, context):
 
     if path == "/conversations" and method == "GET":
         return _handle_list_conversations(event)
+
+    if path == "/uploads/presign" and method == "POST":
+        return _handle_uploads_presign(event)
+
+    if path == "/uploads/list" and method == "GET":
+        return _handle_uploads_list(event)
 
     # Path param routes under /conversations/{session_id}
     if path.startswith("/conversations/"):
@@ -137,6 +192,121 @@ def _handle_chat(event):
     except Exception as e:
         logger.exception("AgentCore invocation failed")
         return _err(502, f"{type(e).__name__}: {e}")
+
+
+# ──────────────────────────── /uploads ──────────────────────────
+def _handle_uploads_presign(event):
+    """Return a presigned PUT URL into the raw bucket.
+
+    Body: {"filename": "...", "contentType": "application/octet-stream"}
+    Response: {"url", "method": "PUT", "key", "bucket", "expires_in", "headers"}
+
+    The browser then does:
+        fetch(url, { method: "PUT", headers, body: file })
+
+    Keys are namespaced per caller (users/<sub>/<ts>-<safe-filename>) so the
+    /uploads/list endpoint can return only what the caller uploaded.
+    """
+    if not RAW_BUCKET:
+        return _err(500, "RAW_BUCKET not configured")
+    user_id = _caller_user_id(event)
+    if not user_id:
+        return _err(401, "Could not resolve caller identity")
+    try:
+        body = json.loads(event.get("body") or "{}")
+    except json.JSONDecodeError:
+        return _err(400, "Invalid JSON body")
+
+    raw_name = (body.get("filename") or "").strip()
+    if not raw_name:
+        return _err(400, "Missing 'filename' in request body")
+    content_type = (body.get("contentType") or "application/octet-stream").strip()
+
+    safe_name = _SAFE_FILENAME_RE.sub("_", raw_name)[-200:].lstrip("_") or "file"
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    key = f"{UPLOAD_PREFIX}{user_id}/{ts}-{safe_name}"
+
+    put_params: dict[str, Any] = {
+        "Bucket": RAW_BUCKET,
+        "Key": key,
+        "ContentType": content_type,
+    }
+    headers: dict[str, str] = {"Content-Type": content_type}
+    if S3_KMS_KEY_ARN:
+        put_params["ServerSideEncryption"] = "aws:kms"
+        put_params["SSEKMSKeyId"] = S3_KMS_KEY_ARN
+        # Browser must echo the same SSE headers it agreed to in the signature.
+        headers["x-amz-server-side-encryption"] = "aws:kms"
+        headers["x-amz-server-side-encryption-aws-kms-key-id"] = S3_KMS_KEY_ARN
+
+    try:
+        url = s3.generate_presigned_url(
+            ClientMethod="put_object",
+            Params=put_params,
+            ExpiresIn=UPLOAD_URL_EXPIRES_SECONDS,
+            HttpMethod="PUT",
+        )
+    except ClientError as e:
+        logger.exception("presign failed")
+        return _err(502, f"{type(e).__name__}: {e}")
+
+    return _ok({
+        "url": url,
+        "method": "PUT",
+        "bucket": RAW_BUCKET,
+        "key": key,
+        "expires_in": UPLOAD_URL_EXPIRES_SECONDS,
+        "headers": headers,
+    })
+
+
+def _handle_uploads_list(event):
+    """List the caller's files in the raw or processed bucket.
+
+    Query string: ?bucket=raw|processed
+    Response: {"bucket", "prefix", "files": [{key, name, size, last_modified}], "truncated"}
+    """
+    qs = event.get("queryStringParameters") or {}
+    which = (qs.get("bucket") or "raw").strip().lower()
+    if which == "raw":
+        bucket = RAW_BUCKET
+    elif which == "processed":
+        bucket = PROCESSED_BUCKET
+    else:
+        return _err(400, "bucket must be 'raw' or 'processed'")
+    if not bucket:
+        return _err(500, f"{which.upper()}_BUCKET not configured")
+
+    user_id = _caller_user_id(event)
+    if not user_id:
+        return _err(401, "Could not resolve caller identity")
+    prefix = f"{UPLOAD_PREFIX}{user_id}/"
+
+    try:
+        resp = s3.list_objects_v2(Bucket=bucket, Prefix=prefix, MaxKeys=MAX_LIST_KEYS)
+    except ClientError as e:
+        logger.exception("list_objects_v2 failed")
+        return _err(502, f"{type(e).__name__}: {e}")
+
+    files = []
+    for obj in resp.get("Contents") or []:
+        key = obj["Key"]
+        if key.endswith("/"):
+            continue  # folder marker
+        lm = obj.get("LastModified")
+        files.append({
+            "key": key,
+            "name": key[len(prefix):],   # strip the user-namespace prefix
+            "size": int(obj.get("Size") or 0),
+            "last_modified": lm.isoformat() if hasattr(lm, "isoformat") else str(lm or ""),
+        })
+    files.sort(key=lambda f: f["last_modified"], reverse=True)
+    return _ok({
+        "bucket": bucket,
+        "prefix": prefix,
+        "files": files,
+        "truncated": bool(resp.get("IsTruncated")),
+    })
 
 
 # ──────────────────────────── /findings ─────────────────────────
@@ -382,9 +552,9 @@ def _json_default(o):
 
 
 def _cors_headers():
-    return {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Headers": "Content-Type,Authorization",
-        "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    }
+    headers = {"Content-Type": "application/json"}
+    if _emit_cors_headers:
+        headers["Access-Control-Allow-Origin"] = "*"
+        headers["Access-Control-Allow-Headers"] = "Content-Type,Authorization"
+        headers["Access-Control-Allow-Methods"] = "GET,POST,OPTIONS"
+    return headers
