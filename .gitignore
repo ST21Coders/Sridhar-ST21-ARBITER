@@ -45,3 +45,4 @@ packaged-*.yml
 .idea/
 .vscode/
 *.swp
+*.lock
