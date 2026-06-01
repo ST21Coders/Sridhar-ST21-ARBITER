@@ -1,0 +1,81 @@
+{
+  "resources": [
+    {
+      "resource_id": "alb-mig-prod-claims-api-001",
+      "type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "compliance": "NON_COMPLIANT",
+      "raw": {
+        "security_group": "sg-mig-prod-alb-open",
+        "ingress": "0.0.0.0/0:443",
+        "waf_attached": false,
+        "age_days": 47
+      },
+      "notes": "Conflicts with MIG-POL-004 \u00a72"
+    },
+    {
+      "resource_id": "pcx-mig-prod-dev-001",
+      "type": "AWS::EC2::VPCPeeringConnection",
+      "compliance": "NON_COMPLIANT",
+      "raw": {
+        "prod_vpc": "vpc-mig-prod-001",
+        "dev_vpc": "vpc-mig-dev-002",
+        "age_days": 78
+      },
+      "notes": "Conflicts with MIG-POL-004 \u00a73"
+    },
+    {
+      "resource_id": "mig-prod-claims-data-primary",
+      "type": "AWS::S3::Bucket",
+      "compliance": "NON_COMPLIANT",
+      "raw": {
+        "replication_target": "eu-west-1",
+        "pii_tier": 1,
+        "age_days": 134
+      },
+      "notes": "Conflicts with MIG-POL-003 \u00a73 (NAIC MDL-668)"
+    },
+    {
+      "resource_id": "alb-mig-prod-api-002",
+      "type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "compliance": "COMPLIANT",
+      "raw": {
+        "waf_attached": true,
+        "owasp_crs": "v4.0"
+      },
+      "notes": "Compliant with MIG-POL-004 \u00a72"
+    },
+    {
+      "resource_id": "alb-mig-prod-portal-003",
+      "type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+      "compliance": "COMPLIANT",
+      "raw": {
+        "waf_attached": true,
+        "owasp_crs": "v4.0"
+      },
+      "notes": "Compliant with MIG-POL-004 \u00a72"
+    },
+    {
+      "resource_id": "tgw-mig-prod-prod-001",
+      "type": "AWS::EC2::TransitGateway",
+      "compliance": "COMPLIANT",
+      "raw": {
+        "segments": [
+          "prod-east",
+          "prod-west"
+        ]
+      },
+      "notes": "Compliant with MIG-POL-004 \u00a73"
+    },
+    {
+      "resource_id": "mig-prod-customer-data-secondary",
+      "type": "AWS::S3::Bucket",
+      "compliance": "COMPLIANT",
+      "raw": {
+        "replication_target": "us-west-2",
+        "pii_tier": 1
+      },
+      "notes": "Compliant with MIG-POL-003 \u00a73"
+    }
+  ],
+  "generated_at": "2026-05-29T14:12:57.860516+00:00"
+}

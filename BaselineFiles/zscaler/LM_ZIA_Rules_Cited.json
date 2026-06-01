@@ -1,0 +1,122 @@
+[
+  {
+    "rule_id": "ZIA-URLCAT-CLOUD-BLK-042",
+    "name": "Cloud Storage Block",
+    "category": "Cloud Storage",
+    "action": "BLOCK",
+    "scope": "AllUsers",
+    "domains": [
+      "dropbox.com"
+    ],
+    "notes": "Conflicts with MIG-POL-001 \u00a72.1"
+  },
+  {
+    "rule_id": "ZIA-APP-CTRL-REMOTE-BLOCK-007",
+    "name": "Remote Tools Block",
+    "category": "Remote Access",
+    "action": "BLOCK",
+    "scope": "AllUsers",
+    "apps": [
+      "TeamViewer",
+      "AnyDesk"
+    ],
+    "notes": "Conflicts with MIG-POL-001 \u00a72.3 and MIG-POL-005 \u00a76"
+  },
+  {
+    "rule_id": "ZIA-APP-CTRL-BROWSER-FF-009",
+    "name": "Firefox Restrict",
+    "category": "Browser",
+    "action": "BLOCK",
+    "scope": "AllUsers",
+    "apps": [
+      "Firefox"
+    ],
+    "notes": "Conflicts with MIG-POL-001 \u00a74"
+  },
+  {
+    "rule_id": "ZIA-SSL-BYPASS-FIN-DOMAINS",
+    "name": "SSL Bypass Finance",
+    "category": "SSL/TLS",
+    "action": "BYPASS_INSPECT",
+    "domains_count": 47,
+    "registered_exception": false,
+    "notes": "Conflicts with MIG-POL-002 \u00a72.2 (PCI DSS 4.1)"
+  },
+  {
+    "rule_id": "ZPA-AUTHPOL-ADMIN-MFA-ONLY",
+    "name": "MFA Admin-Only",
+    "category": "Identity",
+    "action": "MFA_REQUIRED",
+    "scope": "Privileged Admins",
+    "non_admin_users_unprotected": 4200,
+    "notes": "Conflicts with MIG-POL-002 \u00a74.1 (PCI DSS 8.4)"
+  },
+  {
+    "rule_id": "ZIA-IOT-MONITOR-ONLY-VLAN-19",
+    "name": "IoT Monitor",
+    "category": "IoT",
+    "action": "MONITOR",
+    "vlan": 19,
+    "devices": 43,
+    "notes": "Conflicts with MIG-POL-002 \u00a75.1"
+  },
+  {
+    "rule_id": "ZIA-DLP-PII-BLOCK-ALL-EXTERNAL",
+    "name": "Blanket DLP PII",
+    "category": "DLP",
+    "action": "BLOCK",
+    "exceptions": [],
+    "notes": "Conflicts with MIG-POL-003 \u00a72.1 and \u00a72.2"
+  },
+  {
+    "rule_id": "ZPA-GEO-RESTRICT-INDIA-US-ONLY",
+    "name": "Geo Allow IN+US",
+    "category": "ZTNA",
+    "action": "ALLOW",
+    "countries": [
+      "IN",
+      "US"
+    ],
+    "notes": "Conflicts with MIG-POL-003 \u00a74 and MIG-POL-005 \u00a75"
+  },
+  {
+    "rule_id": "ZIA-URLCAT-SOCIAL-BLOCK-ALL",
+    "name": "Social Block All",
+    "category": "URL Filtering",
+    "action": "BLOCK",
+    "scope": "AllEmployees",
+    "department_exceptions": [],
+    "notes": "Conflicts with MIG-POL-001 \u00a73"
+  },
+  {
+    "rule_id": "ZIA-URLCAT-BOX-ALLOW-001",
+    "name": "Box.com Allow",
+    "category": "Cloud Storage",
+    "action": "ALLOW",
+    "scope": "AllUsers",
+    "domains": [
+      "box.com"
+    ],
+    "notes": "Compliant with MIG-POL-001 \u00a72.2"
+  },
+  {
+    "rule_id": "ZIA-URLCAT-CHROME-ALLOW-002",
+    "name": "Chrome Allow",
+    "category": "Browser",
+    "action": "ALLOW",
+    "scope": "AllUsers",
+    "apps": [
+      "Chrome Enterprise"
+    ],
+    "notes": "Compliant with MIG-POL-001 \u00a74"
+  },
+  {
+    "rule_id": "ZIA-SSL-INSPECT-HEALTHCARE-001",
+    "name": "Healthcare SSL Inspect",
+    "category": "SSL/TLS",
+    "action": "INSPECT",
+    "domains_count": 18,
+    "registered_exception": true,
+    "notes": "Compliant with MIG-POL-002 \u00a72.2"
+  }
+]

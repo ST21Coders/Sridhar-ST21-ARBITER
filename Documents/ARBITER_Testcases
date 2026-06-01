@@ -1,0 +1,20 @@
+http://localhost:5173
+1. Sign in as grc_priya@meridianinsurance.com
+   → Governance Overview: 4 KPI tiles + 6×2 heat map + recharts trend + recent activity
+2. Click "Run AI Scan"
+   → POST /scan → ~3-5s spinner → "Scan complete: 12 conflicts, 14 compliant"
+3. Click the SSL Inspection cell (COMPLIANCE × SharePoint+Zscaler, value 1)
+   → /findings?domain=COMPLIANCE&source=SharePoint%2BZscaler filters to UC04
+4. Click the UC04 row → /findings/ARBITER-UC04
+   → Split-screen: MIG-POL-002 §2.2 quote LEFT | ZIA-SSL-BYPASS-FIN-DOMAINS JSON RIGHT | explanation + Create CR RIGHT
+5. Click "Create CR"
+   → ActionRequestModal → submit → /actions returns CR
+6. Sign out, sign in as ciso_diana@meridianinsurance.com
+   → Governance Overview surfaces the pending-CR callout
+7. /actions → expand CR → Approve → status transitions
+8. /actions → "Open JIRA ticket" → MIG-MOCK-NNNNN appears as a chip
+9. Sign in as soc_marcus@meridianinsurance.com → Recent Activity shows CR_APPROVED + JIRA_LINKED
+10. Sign in as emp_sarah@meridianinsurance.com → /analyst chat:
+    "Why is Dropbox blocked?"
+    → reply cites MIG-POL-001 §2.1 + ZIA-URLCAT-CLOUD-BLK-042 verbatim
+    (the KB now contains the exact clause from your demo script)

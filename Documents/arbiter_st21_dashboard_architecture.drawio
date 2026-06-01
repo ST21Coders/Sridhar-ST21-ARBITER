@@ -1,0 +1,551 @@
+<mxfile host="app.diagrams.net" modified="2026-05-29T00:00:00.000Z" agent="claude-code" version="22.1.16" type="device">
+  <diagram name="ARBITER-ST21-Target" id="arbiter_st21_target_architecture">
+    <mxGraphModel dx="2400" dy="1600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1700" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- ================= TITLE ================= -->
+        <mxCell id="title" value="ARBITER (ST21) — Target Architecture (Dashboard + Autonomous Scanner)&#xa;Account 669810405473 · us-east-1 · environment=dev · project=st21arbiter-poc" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=18;fontStyle=1;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="500" y="10" width="1400" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ================= PERSONA SWIMLANE (LEFT) ================= -->
+        <mxCell id="persona_lane" value="Personas" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECFEFF;strokeColor=#0EA5E9;verticalAlign=top;fontSize=13;fontStyle=1;align=center;spacingTop=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="80" width="220" height="640" as="geometry" />
+        </mxCell>
+        <mxCell id="persona_sarah" value="Sarah Chen&#xa;(Employee)&#xa;emp_sarah@..." style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#232F3E;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.users;" vertex="1" parent="1">
+          <mxGeometry x="115" y="130" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="persona_marcus" value="Marcus Webb&#xa;(SOC)&#xa;soc_marcus@..." style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#232F3E;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.users;" vertex="1" parent="1">
+          <mxGeometry x="115" y="260" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="persona_priya" value="Priya Nair&#xa;(GRC)&#xa;grc_priya@..." style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#232F3E;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.users;" vertex="1" parent="1">
+          <mxGeometry x="115" y="390" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="persona_diana" value="Diana Osei&#xa;(CISO)&#xa;ciso_diana@..." style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#232F3E;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.users;" vertex="1" parent="1">
+          <mxGeometry x="115" y="520" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="persona_note" value="All 4 personas browse to&#xa;CloudFront → SPA → Cognito" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=2;fontColor=#075985;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="40" y="660" width="220" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ================= EDGE LAYER ================= -->
+        <mxCell id="edge_lane" value="Edge / SPA Hosting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;fontSize=13;fontStyle=1;align=center;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="290" y="80" width="380" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="cloudfront" value="CloudFront Distribution&#xa;OAC origin → S3 (private SPA)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#8C4FFF;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cloudfront;" vertex="1" parent="1">
+          <mxGeometry x="340" y="140" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="s3_ui" value="S3 UI Bucket&#xa;dev-st21arbiter-poc-ui&#xa;(private + OAC)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#7AA116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="1">
+          <mxGeometry x="500" y="145" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cognito_hosted" value="Cognito Hosted UI&#xa;Auth code flow" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cognito;" vertex="1" parent="1">
+          <mxGeometry x="340" y="270" width="60" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ================= AUTH ================= -->
+        <mxCell id="auth_lane" value="Identity / RBAC" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;verticalAlign=top;fontSize=13;fontStyle=1;align=center;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="710" y="80" width="320" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="cognito_pool" value="Cognito User Pool&#xa;us-east-1_ZCn9RLdut" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.cognito;" vertex="1" parent="1">
+          <mxGeometry x="830" y="140" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cognito_groups_note" value="4 groups: employee, soc, grc, ciso&#xa;4 demo users (1 per group)&#xa;cognito:groups → personaId in SPA" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=2;fontColor=#7F1D1D;rounded=1;fillColor=#FFFFFF;strokeColor=#DD344C;" vertex="1" parent="1">
+          <mxGeometry x="730" y="240" width="280" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="auth_annot" value="Cognito JWT — API GW validates;&#xa;Function URL decodes in-Lambda" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;fontColor=#92400E;rounded=1;fillColor=#FEF3C7;strokeColor=#D97706;" vertex="1" parent="1">
+          <mxGeometry x="730" y="320" width="280" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ================= API PLANE ================= -->
+        <mxCell id="api_lane" value="API Plane (Browser → Backend)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDF2F8;strokeColor=#DB2777;verticalAlign=top;fontSize=13;fontStyle=1;align=center;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="1070" y="80" width="430" height="320" as="geometry" />
+        </mxCell>
+        <mxCell id="apigw" value="API Gateway (REST)&#xa;Cognito JWT authorizer&#xa;All routes except /chat" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.api_gateway;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="140" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="funcurl" value="Lambda Function URL&#xa;AuthType=NONE&#xa;in-Lambda JWT decode&#xa;/chat only" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="140" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="api_annot" value="29s API GW timeout → /chat uses Function URL&#xa;to support long agent fan-outs" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;fontColor=#9D174D;rounded=1;fillColor=#FFFFFF;strokeColor=#DB2777;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="280" width="390" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="routes_list" value="Routes:  /scan  /scan-runs[/{id}]  /findings[/{id}]  /actions[/{id}/(approve|reject|execute|escalate)]&#xa;/audit  /conversations  /uploads  /dashboard  /mcp-health  /jira/tickets  /health  /chat (Func URL)" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=9;fontStyle=0;fontColor=#1E293B;rounded=1;fillColor=#FCE7F3;strokeColor=#DB2777;spacingLeft=8;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="340" width="390" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- ================= VPC OUTER BOX ================= -->
+        <mxCell id="vpc_box" value="VPC  10.20.0.0/20" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;fontColor=#333333;strokeColor=#666666;verticalAlign=top;fontSize=13;fontStyle=1;align=left;spacingLeft=12;spacingTop=8;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="760" width="1460" height="700" as="geometry" />
+        </mxCell>
+
+        <!-- Public Subnet (NAT) -->
+        <mxCell id="public_subnet" value="Public Subnet 1 + 2  (NAT GW · IGW)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e8eef7;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontStyle=1;align=left;spacingLeft=8;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="800" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="nat" value="NAT GW" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.nat_gateway;" vertex="1" parent="1">
+          <mxGeometry x="90" y="835" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="igw" value="IGW" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#8C4FFF;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.internet_gateway;" vertex="1" parent="1">
+          <mxGeometry x="230" y="835" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- PrivateSubnet1 -->
+        <mxCell id="ps1" value="PrivateSubnet1 · us-east-1a&#xa;(Lambda + OSS Interface Endpoint)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontSize=11;fontStyle=1;align=left;spacingLeft=8;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="60" y="940" width="430" height="500" as="geometry" />
+        </mxCell>
+        <mxCell id="api_handler" value="api_handler Lambda&#xa;ENI · LambdaSG&#xa;(/scan /findings /actions /dashboard&#xa;/mcp-health /jira/tickets /audit ...)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" vertex="1" parent="1">
+          <mxGeometry x="110" y="990" width="60" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="scanner_lambda" value="scanner_lambda (NEW)&#xa;ENI · LambdaSG&#xa;EventBridge cron + on-demand" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" vertex="1" parent="1">
+          <mxGeometry x="320" y="990" width="60" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="proc_pipeline" value="processing_pipeline Lambda&#xa;raw → text-extract → processed&#xa;triggers KB ingestion-job (NEW)&#xa;Func URL: manual CISO/GRC trigger" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;" vertex="1" parent="1">
+          <mxGeometry x="110" y="1180" width="60" height="60" as="geometry" />
+        </mxCell>
+
+        <mxCell id="oss_endpoint" value="OSS Interface&#xa;VPC Endpoint" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#8C4FFF;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.endpoints;" vertex="1" parent="1">
+          <mxGeometry x="320" y="1180" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="gw_endpoints" value="Gateway Endpoints:&#xa;  • S3 Gateway VPCE&#xa;  • DynamoDB Gateway VPCE" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=0;fontColor=#1E40AF;rounded=1;fillColor=#FFFFFF;strokeColor=#6c8ebf;spacingLeft=8;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1330" width="350" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- PrivateSubnet2 -->
+        <mxCell id="ps2" value="PrivateSubnet2 · use1-az1&#xa;(AgentCore Runtimes · AgentCoreSG)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;verticalAlign=top;fontSize=11;fontStyle=1;align=left;spacingLeft=8;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="520" y="940" width="500" height="500" as="geometry" />
+        </mxCell>
+        <mxCell id="master" value="Master Orchestrator&#xa;(NEW: scan-mode payload branch)&#xa;Nova 2 Lite · AgentCore Memory" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#01A88D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock_agentcore;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1000" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="spec_sharepoint" value="sharepoint_specialist&#xa;Nova 2 Lite" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#01A88D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock_agentcore;" vertex="1" parent="1">
+          <mxGeometry x="780" y="970" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="spec_awsconfig" value="awsconfig_specialist&#xa;Nova 2 Lite" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#01A88D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock_agentcore;" vertex="1" parent="1">
+          <mxGeometry x="780" y="1080" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="spec_zscaler" value="zscaler_specialist&#xa;Nova 2 Lite" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#01A88D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock_agentcore;" vertex="1" parent="1">
+          <mxGeometry x="780" y="1190" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="acmemory" value="AgentCore Memory&#xa;90-day TTL" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#01A88D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock_agentcore;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1140" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="guardrail_badge" value="Bedrock Guardrails attached&#xa;(content + PII + denied topics)&#xa;on every Bedrock call" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;fontColor=#0F766E;rounded=1;fillColor=#CCFBF1;strokeColor=#0EA5E9;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1320" width="430" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="model_annot" value="Default model: Amazon Nova 2 Lite (us.amazon.nova-2-lite-v1:0)&#xa;— no AWS Marketplace subscription needed" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;fontColor=#92400E;rounded=1;fillColor=#FEF3C7;strokeColor=#D97706;" vertex="1" parent="1">
+          <mxGeometry x="560" y="1380" width="430" height="45" as="geometry" />
+        </mxCell>
+
+        <!-- ================= AWS DATA / AI PLANE (right column, outside VPC) ================= -->
+        <mxCell id="dataai_lane" value="Data + AI Plane (Bedrock-managed)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FDFFEF;strokeColor=#d6b656;verticalAlign=top;fontSize=13;fontStyle=1;align=center;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="80" width="820" height="700" as="geometry" />
+        </mxCell>
+
+        <!-- DDB tables -->
+        <mxCell id="ddb_title" value="DynamoDB Tables" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=11;fontStyle=1;fontColor=#1E293B;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="120" width="780" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="ddb_conflicts" value="conflicts" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#C925D1;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;" vertex="1" parent="1">
+          <mxGeometry x="1570" y="150" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ddb_conflicts_v2" value="conflicts-v2&#xa;(NEW)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#C925D1;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=1;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;" vertex="1" parent="1">
+          <mxGeometry x="1690" y="150" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ddb_scan_runs" value="scan-runs&#xa;(NEW)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#C925D1;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=1;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;" vertex="1" parent="1">
+          <mxGeometry x="1810" y="150" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ddb_change_req" value="change-requests" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#C925D1;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;" vertex="1" parent="1">
+          <mxGeometry x="1930" y="150" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ddb_audit" value="audit-log" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#C925D1;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;" vertex="1" parent="1">
+          <mxGeometry x="2060" y="150" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ddb_sessions" value="sessions" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#C925D1;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;" vertex="1" parent="1">
+          <mxGeometry x="2180" y="150" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Bedrock Layer -->
+        <mxCell id="bedrock_title" value="Bedrock Runtime · KB · OSS · Guardrails" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=11;fontStyle=1;fontColor=#1E293B;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="240" width="780" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="bedrock_kb" value="Bedrock&#xa;Knowledge Base" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#01A88D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock;" vertex="1" parent="1">
+          <mxGeometry x="1580" y="280" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="oss" value="OpenSearch Serverless&#xa;policy-vectors&#xa;(vector store for KB)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#8C4FFF;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.opensearch_service;" vertex="1" parent="1">
+          <mxGeometry x="1720" y="280" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="bedrock_models" value="Bedrock Runtime&#xa;Nova 2 Lite&#xa;Titan-Embed v2" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#01A88D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock;" vertex="1" parent="1">
+          <mxGeometry x="1860" y="280" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="guardrails" value="Bedrock Guardrails&#xa;content + PII + denied" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#01A88D;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock;" vertex="1" parent="1">
+          <mxGeometry x="2000" y="280" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- S3 + KMS + EventBridge -->
+        <mxCell id="storage_title" value="Object Storage + Keys + Schedulers" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=11;fontStyle=1;fontColor=#1E293B;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="370" width="780" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="s3_raw" value="S3 raw bucket&#xa;KMS encrypted" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#7AA116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="1">
+          <mxGeometry x="1580" y="410" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="s3_processed" value="S3 processed&#xa;(KB source)&#xa;KMS encrypted" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#7AA116;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" vertex="1" parent="1">
+          <mxGeometry x="1700" y="410" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="kms_datarest" value="KMS CMK&#xa;DataAtRest" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.key_management_service;" vertex="1" parent="1">
+          <mxGeometry x="1820" y="410" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="kms_ddb" value="KMS CMK&#xa;DynamoDB" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#DD344C;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.key_management_service;" vertex="1" parent="1">
+          <mxGeometry x="1940" y="410" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="evb_scanner" value="EventBridge Rule&#xa;cron(0 6 * * ? *)&#xa;→ scanner_lambda" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=1;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.eventbridge;" vertex="1" parent="1">
+          <mxGeometry x="2070" y="410" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="evb_proc" value="EventBridge Rule&#xa;cron(0 14,2 * * ? *)&#xa;→ processing_pipeline" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.eventbridge;" vertex="1" parent="1">
+          <mxGeometry x="2200" y="410" width="50" height="50" as="geometry" />
+        </mxCell>
+
+        <!-- Annotations on right -->
+        <mxCell id="scanner_annot" value="Scanner: deterministic rule-pack + LLM explanation&#xa;Idempotent conflict_id (ARBITER-&lt;rule_key&gt;); same scan rewrites the row&#xa;Writes BatchWriteItem: conflicts-v2 + scan-runs + audit-log" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=10;fontStyle=1;fontColor=#92400E;rounded=1;fillColor=#FEF3C7;strokeColor=#D97706;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="490" width="780" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- External (JIRA) -->
+        <mxCell id="ext_jira" value="JIRA / Atlassian Cloud&#xa;reached via user's Atlassian MCP plugin&#xa;in Claude session" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EEF2FF;strokeColor=#6366F1;verticalAlign=top;fontSize=11;fontStyle=1;align=center;spacingTop=8;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1560" y="580" width="380" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="jira_annot" value="Demo only — not invoked by Lambda.&#xa;Master's jira_create_ticket tool stub.&#xa;Upgrade path: Secrets Manager + jira-python REST PUT (documented)." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=9;fontStyle=2;fontColor=#4338CA;fillColor=none;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1565" y="615" width="370" height="65" as="geometry" />
+        </mxCell>
+
+        <!-- ECR/CodeBuild -->
+        <mxCell id="ecr" value="ECR (4 repos for agents)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#ED7100;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.elastic_container_registry;" vertex="1" parent="1">
+          <mxGeometry x="1970" y="600" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="codebuild" value="CodeBuild&#xa;arm64 (Graviton)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#C925D1;strokeColor=#ffffff;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.codebuild;" vertex="1" parent="1">
+          <mxGeometry x="2080" y="600" width="50" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cwl" value="CloudWatch Logs&#xa;AgentCore Runtime" style="sketch=0;outlineConnect=0;fontColor=#232F3E;fillColor=#E7157B;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=10;fontStyle=0;aspect=fixed;shape=mxgraph.aws4.cloudwatch_logs;" vertex="1" parent="1">
+          <mxGeometry x="2200" y="605" width="40" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- ===================== EDGES (arrows) ===================== -->
+
+        <!-- Personas → CloudFront -->
+        <mxCell id="e_sarah_cf" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="persona_sarah" target="cloudfront">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_marcus_cf" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="persona_marcus" target="cloudfront">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_priya_cf" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="persona_priya" target="cloudfront">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_diana_cf" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="persona_diana" target="cloudfront">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- CloudFront → S3 SPA -->
+        <mxCell id="e_cf_s3" value="OAC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="cloudfront" target="s3_ui">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Browser → Cognito Hosted UI (from Sarah representative) -->
+        <mxCell id="e_browser_cognito" value="login redirect" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="persona_priya" target="cognito_hosted">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="280" y="420" />
+              <mxPoint x="280" y="300" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Cognito Hosted UI → User Pool -->
+        <mxCell id="e_hosted_pool" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="cognito_hosted" target="cognito_pool">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Browser → API GW (REST) -->
+        <mxCell id="e_browser_apigw" value="JWT Bearer&#xa;(all routes except /chat)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="cloudfront" target="apigw">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="900" y="170" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Browser → Function URL -->
+        <mxCell id="e_browser_funcurl" value="JWT Bearer&#xa;(/chat)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=0;strokeColor=#9D174D;" edge="1" parent="1" source="cloudfront" target="funcurl">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1300" y="170" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- API GW → api_handler -->
+        <mxCell id="e_apigw_api" value="invoke" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="apigw" target="api_handler">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1140" y="970" />
+              <mxPoint x="140" y="970" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <!-- Function URL → api_handler -->
+        <mxCell id="e_funcurl_api" value="/chat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#9D174D;" edge="1" parent="1" source="funcurl" target="api_handler">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1370" y="950" />
+              <mxPoint x="160" y="950" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- api_handler → scanner_lambda (lambda:Invoke Async on POST /scan) -->
+        <mxCell id="e_api_scanner" value="lambda:Invoke (Async)&#xa;POST /scan" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="api_handler" target="scanner_lambda">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- api_handler → AgentCore Master (via NAT, sync) -->
+        <mxCell id="e_api_master" value="InvokeAgentRuntime (sync)&#xa;chat path via NAT" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="api_handler" target="master">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="380" y="1020" />
+              <mxPoint x="540" y="1020" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- scanner_lambda → Master (scan-mode payload via NAT) -->
+        <mxCell id="e_scanner_master" value="InvokeAgentRuntime&#xa;{scan:true, rule_pack:&quot;v1&quot;}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#92400E;" edge="1" parent="1" source="scanner_lambda" target="master">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="450" y="1020" />
+              <mxPoint x="540" y="1020" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Master fans out → specialists -->
+        <mxCell id="e_master_sp" value="invoke_agent_runtime" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="master" target="spec_sharepoint">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_master_awsc" value="invoke_agent_runtime" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="master" target="spec_awsconfig">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_master_zs" value="invoke_agent_runtime" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="master" target="spec_zscaler">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Master → AgentCore Memory -->
+        <mxCell id="e_master_mem" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="master" target="acmemory">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Specialists → OSS endpoint (in PS1) → OSS -->
+        <mxCell id="e_sp_oss" value="KB retrieve" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="spec_sharepoint" target="oss_endpoint">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="700" y="1000" />
+              <mxPoint x="700" y="1205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_awsc_oss" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="spec_awsconfig" target="oss_endpoint">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_zs_oss" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="spec_zscaler" target="oss_endpoint">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- OSS endpoint → OSS collection (out of VPC) -->
+        <mxCell id="e_ossep_oss" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=0;" edge="1" parent="1" source="oss_endpoint" target="oss">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- KB ↔ OSS (managed) -->
+        <mxCell id="e_kb_oss" value="vector index" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="bedrock_kb" target="oss">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Master → Bedrock Runtime via NAT -->
+        <mxCell id="e_master_bedrock" value="Converse&#xa;(via NAT)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0F766E;" edge="1" parent="1" source="master" target="bedrock_models">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="590" y="950" />
+              <mxPoint x="1885" y="950" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Specialists → Bedrock KB (managed RAG) -->
+        <mxCell id="e_sp_kb" value="bedrock-agent:Retrieve" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="spec_sharepoint" target="bedrock_kb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_awsc_kb" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="spec_awsconfig" target="bedrock_kb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_zs_kb" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="spec_zscaler" target="bedrock_kb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- api_handler → DDB via Gateway endpoint -->
+        <mxCell id="e_api_ddb" value="DDB ops&#xa;(Gateway VPCE)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="api_handler" target="ddb_conflicts_v2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="200" y="970" />
+              <mxPoint x="200" y="220" />
+              <mxPoint x="1715" y="220" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- api_handler → S3 (Gateway VPCE) -->
+        <mxCell id="e_api_s3" value="S3 reads (Gateway VPCE)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="api_handler" target="s3_raw">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="240" y="990" />
+              <mxPoint x="240" y="435" />
+              <mxPoint x="1605" y="435" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- api_handler → Bedrock Runtime via NAT (LLM polish/explain) -->
+        <mxCell id="e_api_bedrock" value="Bedrock Runtime (via NAT)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0F766E;" edge="1" parent="1" source="api_handler" target="bedrock_models">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="180" y="900" />
+              <mxPoint x="1885" y="900" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- scanner_lambda → DDB via Gateway VPCE (BatchWriteItem) -->
+        <mxCell id="e_scanner_ddb" value="BatchWriteItem&#xa;conflicts-v2 / scan-runs / audit-log" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#92400E;" edge="1" parent="1" source="scanner_lambda" target="ddb_scan_runs">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="350" y="970" />
+              <mxPoint x="350" y="240" />
+              <mxPoint x="1835" y="240" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- EventBridge → scanner_lambda -->
+        <mxCell id="e_evb_scanner" value="cron(0 6 * * ? *)&#xa;daily scan" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#92400E;" edge="1" parent="1" source="evb_scanner" target="scanner_lambda">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2095" y="700" />
+              <mxPoint x="350" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- EventBridge → processing_pipeline -->
+        <mxCell id="e_evb_proc" value="cron(0 14,2 * * ? *)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="evb_proc" target="proc_pipeline">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2225" y="720" />
+              <mxPoint x="140" y="720" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- processing_pipeline → S3 raw (read) -->
+        <mxCell id="e_pp_raw" value="read raw" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="proc_pipeline" target="s3_raw">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="280" y="1210" />
+              <mxPoint x="280" y="450" />
+              <mxPoint x="1605" y="450" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <!-- processing_pipeline → S3 processed (write) -->
+        <mxCell id="e_pp_proc" value="write processed" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="proc_pipeline" target="s3_processed">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="300" y="1230" />
+              <mxPoint x="300" y="470" />
+              <mxPoint x="1725" y="470" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <!-- NEW: processing_pipeline → KB ingestion -->
+        <mxCell id="e_pp_kb" value="StartIngestionJob (NEW)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0F766E;" edge="1" parent="1" source="proc_pipeline" target="bedrock_kb">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="200" y="1300" />
+              <mxPoint x="200" y="305" />
+              <mxPoint x="1605" y="305" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- Guardrails attached to Bedrock Runtime (badge edge) -->
+        <mxCell id="e_grd_models" value="attached" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="guardrails" target="bedrock_models">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- KMS encrypts S3 + DDB (label-only edges) -->
+        <mxCell id="e_kms_s3raw" value="encrypts" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="kms_datarest" target="s3_raw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_kms_s3proc" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="kms_datarest" target="s3_processed">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_kms_ddb1" value="encrypts" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="kms_ddb" target="ddb_sessions">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Master → JIRA via MCP (dashed external) -->
+        <mxCell id="e_master_jira" value="jira_create_ticket tool&#xa;(dashed — via Claude MCP)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#4338CA;" edge="1" parent="1" source="master" target="ext_jira">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="650" y="1030" />
+              <mxPoint x="650" y="635" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- CodeBuild → ECR → AgentCore (deployment dashed) -->
+        <mxCell id="e_cb_ecr" value="push image" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="codebuild" target="ecr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_ecr_master" value="pull on update" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="ecr" target="master">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1995" y="700" />
+              <mxPoint x="590" y="700" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- AgentCore → CloudWatch Logs -->
+        <mxCell id="e_master_cwl" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="master" target="cwl">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="630" y="1050" />
+              <mxPoint x="2220" y="1050" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- ================= LEGEND ================= -->
+        <mxCell id="legend_box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#94A3B8;" vertex="1" parent="1">
+          <mxGeometry x="1540" y="710" width="820" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_text" value="&lt;b&gt;Legend:&lt;/b&gt; solid = synchronous AWS call · dashed = managed/encryption/external · pink edges = JWT/HTTP via CloudFront · teal edges = Bedrock Runtime (Guardrails-attached) · amber edges = scanner pipeline · indigo dashed = external JIRA via Atlassian MCP plugin (not invoked by any Lambda)" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=10;fontStyle=0;fontColor=#1E293B;fillColor=none;strokeColor=none;spacingLeft=10;spacingTop=6;" vertex="1" parent="1">
+          <mxGeometry x="1550" y="715" width="800" height="60" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
